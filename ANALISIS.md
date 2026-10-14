@@ -97,7 +97,18 @@ En conclusión, las pruebas originales se concentran principalmente en expresion
 
 | Prueba (archivo::nombre) | Entrada |	Esperado |	Categoría |	¿Por qué esa categoría? |
 |---|---|---|---|---|
-| | | | | |
+| test_casos_adicionales.py::test_division_con_resultado_decimal |  10 / 4 |  Resultado 2.5. | Normal | Comprueba el funcionamiento habitual de la división cuando el resultado es decimal.|
+|test_casos_adicionales.py::test_precedencia_de_division_sobre_suma | 8 + 12 / 4 |  Resultado 11.0. | Normal | Comprueba que la división se realice antes que la suma, de acuerdo con las reglas de precedencia.|
+| test_casos_adicionales.py::test_asociatividad_izquierda_de_la_resta | 10 - 3 - 2 |  Resultado 5. |  Normal | Comprueba la agrupación de operaciones consecutivas de resta. Aunque es una expresión válida, también permite detectar un posible defecto en el parser. |
+| test_casos_adicionales.py::test_numero_con_ceros_a_la_izquierda | 007 | Resultado 7. |  Frontera | Comprueba un formato especial de número: los ceros iniciales no deben modificar su valor numérico. |
+| test_casos_adicionales.py::test_expresion_con_tabulaciones_y_espacios | 3   +   4 | Resultado 7. |  Frontera  | Comprueba el tratamiento de distintos espacios en blanco y su ubicación dentro de una expresión. |
+|test_casos_adicionales.py::test_division_entre_cero  | 8 / 0 | Se lanza ErrorDeEvaluacion. | Frontera  | Comprueba el caso especial en el que el divisor es cero, condición que debe generar un error de evaluación. | 
+| test_casos_adicionales.py::test_expresion_con_cero  | 0 + 5 | Resultado 5.  | Frontera  | Comprueba que el cero se acepte como operando y se procese correctamente. |
+| test_casos_adicionales.py::test_caracter_no_reconocido  | 3 @ 4 | Se lanza ErrorDeSintaxis. | Inválida  | Contiene un carácter que no pertenece al lenguaje admitido; la expresión debe rechazarse. |
+| test_casos_adicionales.py::test_numeros_consecutivos_sin_operador | 3 4 | Se lanza ErrorDeSintaxis. | Inválida  | Contiene dos números consecutivos sin un operador que los conecte. |
+| test_casos_adicionales.py::test_expresion_incompleta  | 3 + | Se lanza ErrorDeSintaxis. | Inválida  | La expresión termina sin incluir el operando derecho requerido por el operador +. |
+| test_casos_adicionales.py::test_parentesis_sin_cerrar | (3 + 4  | Se lanza ErrorDeSintaxis. | Inválida  | Falta el paréntesis de cierre necesario para completar la expresión. |
+| test_casos_adicionales.py::test_signo_negativo_unario | -3  | Se lanza ErrorDeSintaxis. | Inválida  | El signo negativo unario no está admitido por las especificaciones del intérprete. |
 ---
 
 ## 4. Los defectos
