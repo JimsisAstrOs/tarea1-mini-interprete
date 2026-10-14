@@ -1,9 +1,9 @@
 # Análisis — Tarea 1
 
 **Integrantes:**
-1.
-2.
-3.
+1. Flores Corona Astrid
+2. Flores Leyva Ivone Alejandra
+3. Ortiz Trujillo Jimena
 
 **Fork:**
 **Rama:**
@@ -19,10 +19,10 @@
 
 | Componente | Qué recibe | Qué entrega | De qué es responsable |
 |---|---|---|---|
-| `lexer` | | | |
-| `parser` | | | |
-| `ast` | | | |
-| `evaluator` | | | |
+| `lexer` | Una cadena con una expresión aritmética | Una lista de tokens con su tipo, valor y posición en el texto | Reconocer números, operadores y paréntesis; ignorar espacios en blanco y convertir el texto en tokens |
+| `parser` | Una lista de tokens que genera el lexer | Un AST que representa la expresión | Analizar la estructura de la expresión, comprobar la sintaxis y respetar la precedencia de los operadores y la agrupación indicada por los paréntesis |
+| `ast` | Los valores de los números y las operaciones que se deben representar | Objetos que representan números (Numero) y operaciones binarias (OperacionBinaria) | Definir las estructuras de datos que permiten representar la expresión mediante un árbol |
+| `evaluator` | Los valores de los números y las operaciones que se deben representar | El resultado numérico de evaluar la expresión | Recorrer el árbol, ejecutar las operaciones aritméticas y generar un ErrorDeEvaluacion cuando se intenta dividir entre cero |
 
 ### 1.2 ¿Qué recorrido sigue una expresión desde que se recibe como texto hasta que produce un resultado?
 
@@ -31,14 +31,9 @@
 | Etapa | Cómo se ve `(3 + 4) * 2` aquí |
 |---|---|
 | texto | `"(3 + 4) * 2"` |
-| tokens | |
-| AST | |
-| resultado | |
-
-> Para el renglón del AST, dibújenlo **primero ustedes** y después comprueben
-> con `python3 interprete.py --arbol "(3 + 4) * 2"`. Si su dibujo y el del
-> programa no coinciden, uno de los dos está mal, y averiguar cuál es
-> justamente el trabajo.
+| tokens | [PAR_IZQ("("), NUMERO(3), MAS("+"), NUMERO(4), PAR_DER(")"), POR("*"), NUMERO(2)] |
+| AST | OperacionBinaria("*", OperacionBinaria("+", Numero(3), Numero(4)), Numero(2)) |
+| resultado | 14 |
 
 ---
 
@@ -47,6 +42,7 @@
 ### 2.1 ¿Qué pruebas venían incluidas?
 
 | Prueba | Componente | Comportamiento que verifica | ¿Cuántos operadores usa? | ¿Normal, frontera o inválida? |
+|---|---|---|---|---|
 | test_tokeniza_un_numero_solo | Lexer | Reconocimiento de un número y comprobación del token completo | 0 | Normal|
 | test_tokeniza_una_suma | Lexer | Reconocimiento y orden de los tokens de una suma; comprueba valores y posiciones | 1 | Normal |
 | test_los_espacios_no_producen_tokens | Lexer | Los espacios no aumentan la cantidad de tokens | 1 | Normal |
@@ -61,10 +57,6 @@
 | test_precedencia_sin_parentesis | Evaluador | Respeta la precedencia de la multiplicación sobre la suma. | 2 | Normal |
 | test_precedencia_con_parentesis | Evaluador | Respeta la agrupación indicada por los paréntesis. | 2 | Normal |
 
-> Llenen la tabla **completa**, con las 13. Es tediosa a propósito: la única
-> forma de saber qué no está cubierto es caracterizar sistemáticamente lo que
-> sí. Cuando terminen, léanla como columna, no como renglones, y pregúntense
-> qué combinación **no aparece nunca**.
 
 ### 2.2 ¿Qué comportamientos **no** estaban probados?
  Los principales casos que no estaban probados son los siguientes:
@@ -103,10 +95,9 @@ En conclusión, las pruebas originales se concentran principalmente en expresion
 
 ### 3.1 ¿Cuáles son casos normales, cuáles frontera y cuáles inválidos?
 
-| Prueba (archivo::nombre) | Entrada | Esperado | Categoría | ¿Por qué esa categoría? |
+| Prueba (archivo::nombre) | Entrada |	Esperado |	Categoría |	¿Por qué esa categoría? |
 |---|---|---|---|---|
 | | | | | |
-
 ---
 
 ## 4. Los defectos
