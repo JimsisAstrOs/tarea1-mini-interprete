@@ -47,8 +47,19 @@
 ### 2.1 ¿Qué pruebas venían incluidas?
 
 | Prueba | Componente | Comportamiento que verifica | ¿Cuántos operadores usa? | ¿Normal, frontera o inválida? |
-|---|---|---|---|---|
-| | | | | |
+| test_tokeniza_un_numero_solo | Lexer | Reconocimiento de un número y comprobación del token completo | 0 | Normal|
+| test_tokeniza_una_suma | Lexer | Reconocimiento y orden de los tokens de una suma; comprueba valores y posiciones | 1 | Normal |
+| test_los_espacios_no_producen_tokens | Lexer | Los espacios no aumentan la cantidad de tokens | 1 | Normal |
+| test_tokeniza_parentesis | Lexer | Reconocimiento y orden de los tipos de token de los paréntesis y el número | 0 | Normal |
+| test_construye_el_arbol_de_una_suma | Parser | Construcción del AST de una suma. | 1 | Normal |
+| test_la_multiplicacion_se_agrupa_antes_que_la_suma | Parser | Comprueba la precedencia de la multiplicación sobre la suma en el AST. | 2 | Normal |
+| test_los_parentesis_cambian_la_agrupacion | Parser | Comprueba que los paréntesis cambien la estructura del AST. | 2 | Normal |
+| test_suma | Evaluador | Evalúa correctamente una suma. | 1 | Normal |
+| test_resta | Evaluador | Evalúa correctamente una resta. | 1 | Normal |
+| test_multiplicacion | Evaluador | Evalúa correctamente una multiplicación. | 1 | Normal |
+| test_division | Evaluador | Evalúa correctamente una división. | 1 | Normal |
+| test_precedencia_sin_parentesis | Evaluador | Respeta la precedencia de la multiplicación sobre la suma. | 2 | Normal |
+| test_precedencia_con_parentesis | Evaluador | Respeta la agrupación indicada por los paréntesis. | 2 | Normal |
 
 > Llenen la tabla **completa**, con las 13. Es tediosa a propósito: la única
 > forma de saber qué no está cubierto es caracterizar sistemáticamente lo que
@@ -56,8 +67,35 @@
 > qué combinación **no aparece nunca**.
 
 ### 2.2 ¿Qué comportamientos **no** estaban probados?
+ Los principales casos que no estaban probados son los siguientes:
 
-> Ésta es la pregunta importante de toda la tarea. Tómense su tiempo.
+1. Operaciones aritméticas y reglas de agrupación
+
+* No se comprueba si las operaciones de la misma precedencia se evalúan de izquierda a derecha, como, 10 - 3 - 2 o 16 / 4 / 2.
+* No se comprueba la precedencia de la división sobre la suma o la resta.
+* No se prueba la división con un resultado decimal, por ejemplo, 10 / 4, que se espera 2.5.
+* No se comprueba qué sucede cuando se intenta dividir entre cero, por ejemplo, 8 / 0, debe producirse un ErrorDeEvaluacion.
+
+2. Números y espacios en blanco
+
+* No se comprueba que los números con ceros a la izquierda conserven su valor numérico, por ejemplo, que 007 se interprete como 7.
+* Aunque existe una prueba sobre los espacios, no se comprueba si se ignoran otros espacios en blanco, como tabulaciones o saltos de línea, en diferentes posiciones de una expresión.
+
+3. Entradas inválidas y errores de sintaxis
+
+* No se comprueba qué sucede cuando se introduce un carácter no reconocido, como @.
+* No se comprueba si el intérprete rechaza expresiones con números consecutivos sin un operador, como 3 4.
+* No se prueban expresiones vacías o formadas únicamente por espacios.
+* No se comprueba el comportamiento ante paréntesis sin cerrar o paréntesis de cierre sin apertura, por ejemplo, (3 + 4 o 3 + 4).
+* No se verifica que se rechacen expresiones incompletas, como 3 +, ni que se rechace el signo negativo unario, como en -3, ya que no está admitido.
+* No se comprueba que los errores de sintaxis indiquen correctamente la posición del texto donde se encuentra el problema.
+
+4. Procesamiento de la expresión completa
+
+* No se comprueba que el intérprete procese todos los tokens de la entrada y rechace aquellos que queden sin utilizar.
+* No se prueban combinaciones más variadas de operadores, números y paréntesis que permitan verificar conjuntamente las reglas de precedencia y agrupación.
+
+En conclusión, las pruebas originales se concentran principalmente en expresiones válidas y sencillas. Faltan pruebas para los casos límite, las entradas inválidas y algunas reglas específicas del proyecto. Estos comportamientos constituyen candidatos para diseñar nuevas pruebas, detectar posibles defectos y comprobar que el intérprete cumple las especificaciones.
 
 ---
 
@@ -75,16 +113,17 @@
 
 ### 4.1 ¿Qué defecto reveló primero una prueba nueva?
 
+Cómo se tokeniza un simbolo no válido, por ejemplo **@**, no emite ningún error, lo ignora y al final solo devuelve el primer número.
+
 ### 4.2 ¿Por qué el comportamiento observado era incorrecto?
 
-> No basta con "daba mal". Digan contra qué lo están comparando: qué regla,
-> qué línea de la semántica declarada del README.
+Porque no se hace saber que hay un error de sintáxis y al final la expresión podría no ser correcta o no la requerida. Se ejecutó **3 @ 4** y el intérprete solo devolvió **3**, cuando debería especificar un error, como _el simbolo no es válido_, esto pasa porque en el código lo que no sea simbolo o numero, se ignora con un espacio.
 
 ### 4.3 ¿Qué cambio realizaron?
 
 | Defecto | Entrada que lo revela | Daba | Debería dar | Commit rojo | Commit verde |
-|---|---|---|---|---|---|
-| | | | | | |
+| Lexer gnora operadores no válidos y Parser no comprueba que se hayan consumido todos los tokens | 3 @ 4 | 3 | ErrorDeSintaxis |---|---|
+|  |  |  |  |  |  |
 
 ### 4.4 ¿Cómo saben que la corrección es general y no sólo hace pasar ese ejemplo?
 
