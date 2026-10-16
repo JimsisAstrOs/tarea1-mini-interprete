@@ -5,10 +5,6 @@ La gramatica que reconoce este parser es:
     expresion := termino  (('+' | '-') termino)*
     termino   := factor   (('*' | '/') factor)*
     factor    := NUMERO | '(' expresion ')'
-
-Los tres niveles son lo que hace que  3 + 4 * 2  se agrupe como  3 + (4 * 2)
-y no como  (3 + 4) * 2 : la multiplicacion vive un nivel mas abajo, asi que
-se arma primero.
 """
 
 from .ast import Numero, OperacionBinaria
@@ -26,8 +22,17 @@ class Parser:
         self.pos = 0
 
     def parsear(self):
-        """Construye el AST de la lista de tokens."""
-        return self._expresion()
+        """Construye el AST de la lista de tokens y verifica que no queden sobrantes."""
+        if not self.tokens:
+            raise ErrorDeSintaxis("expresion vacia", 0)
+
+        nodo = self._expresion()
+
+        actual = self._actual()
+        if actual is not None:
+            raise ErrorDeSintaxis(f"token inesperado {actual.valor!r}", actual.posicion)
+
+        return nodo
 
     def _actual(self):
         """El token en la posicion actual, o None si ya no quedan."""
@@ -37,29 +42,33 @@ class Parser:
 
     def _avanzar(self):
         """Consume el token actual y lo regresa."""
+        if self.pos >= len(self.tokens):
+            pos_error = self.tokens[-1].posicion + 1 if self.tokens else 0
+            raise ErrorDeSintaxis("expresion incompleta", pos_error)
         token = self.tokens[self.pos]
         self.pos += 1
         return token
 
-    def _expresion(self):
-        izquierda = self._termino()
-        actual = self._actual()
-        if actual is not None and actual.tipo in OPERADORES_SUMA:
+    def _parsear_operacion_binaria(self, funcion_siguiente_nivel, operadores_permitidos):
+        """Método helper refactorizado para asociar a la izquierda sin duplicar código."""
+        nodo = funcion_siguiente_nivel()
+        while self._actual() is not None and self._actual().tipo in operadores_permitidos:
             operador = self._avanzar()
-            derecha = self._expresion()
-            return OperacionBinaria(operador.valor, izquierda, derecha)
-        return izquierda
+            derecha = funcion_siguiente_nivel()
+            nodo = OperacionBinaria(operador.valor, nodo, derecha)
+        return nodo
+
+    def _expresion(self):
+        return self._parsear_operacion_binaria(self._termino, OPERADORES_SUMA)
 
     def _termino(self):
-        izquierda = self._factor()
-        actual = self._actual()
-        if actual is not None and actual.tipo in OPERADORES_PRODUCTO:
-            operador = self._avanzar()
-            derecha = self._termino()
-            return OperacionBinaria(operador.valor, izquierda, derecha)
-        return izquierda
+        return self._parsear_operacion_binaria(self._factor, OPERADORES_PRODUCTO)
 
     def _factor(self):
+        if self._actual() is None:
+            pos_error = self.tokens[-1].posicion + 1 if self.tokens else 0
+            raise ErrorDeSintaxis("se esperaba una expresion u operando", pos_error)
+
         token = self._avanzar()
 
         if token.tipo == TipoToken.NUMERO:
@@ -67,9 +76,11 @@ class Parser:
 
         if token.tipo == TipoToken.PAR_IZQ:
             nodo = self._expresion()
-            cierre = self._avanzar()
-            if cierre.tipo != TipoToken.PAR_DER:
-                raise ErrorDeSintaxis("se esperaba ')'", cierre.posicion)
+            actual = self._actual()
+            if actual is None or actual.tipo != TipoToken.PAR_DER:
+                pos = actual.posicion if actual else token.posicion
+                raise ErrorDeSintaxis("se esperaba ')'", pos)
+            self._avanzar()
             return nodo
 
         raise ErrorDeSintaxis(f"token inesperado {token.valor!r}", token.posicion)
