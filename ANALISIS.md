@@ -115,19 +115,26 @@ En conclusión, las pruebas originales se concentran principalmente en expresion
 
 ### 4.1 ¿Qué defecto reveló primero una prueba nueva?
 
-Cómo se tokeniza un simbolo no válido, por ejemplo **@**, no emite ningún error, lo ignora y al final solo devuelve el primer número.
-
+1. El `lexer` ignoraba caracteres inválidos (como `@`) y el `parser` no comprobaba si quedaban tokens sin consumir al final (`3 4`).
+2. El `parser` asociaba la resta y la división encadenadas hacia la derecha (`10 - 3 - 2`).
 ### 4.2 ¿Por qué el comportamiento observado era incorrecto?
-
-Porque no se hace saber que hay un error de sintáxis y al final la expresión podría no ser correcta o no la requerida. Se ejecutó **3 @ 4** y el intérprete solo devolvió **3**, cuando debería especificar un error, como _el simbolo no es válido_, esto pasa porque en el código lo que no sea simbolo o numero, se ignora con un espacio.
-
+1. `"3 @ 4"` devolvía `3` porque el lexer simplemente ignoraba el caracter no reconocido en su cláusula `else` y el parser devolvía el primer número sin verificar el resto de la entrada.
+2. `"10 - 3 - 2"` devolvía `9` en lugar de `5` porque `_expresion()` realizaba recursión hacia la derecha, agrupando la expresión como `10 - (3 - 2)`.
 ### 4.3 ¿Qué cambio realizaron?
 
-| Defecto | Entrada que lo revela | Daba | Debería dar | Commit rojo | Commit verde |
-| Lexer gnora operadores no válidos y Parser no comprueba que se hayan consumido todos los tokens | 3 @ 4 | 3 | ErrorDeSintaxis |---|---|
-|  |  |  |  |  |  |
+| Defecto | Entrada que lo revela | Daba | Debería dar |
+|---|---|---|---|
+| Caracter no reconocido ignorado | `3 @ 4` | 3 | ErrorDeSintaxis |
+| Tokens sobrantes no validados | `3 4` | 3 | ErrorDeSintaxis |
+| Expresión incompleta causa crash | `3 +` | IndexError | ErrorDeSintaxis |
+| Asociatividad a la derecha | `10 - 3 - 2` | 9 | 5 |
 
 ### 4.4 ¿Cómo saben que la corrección es general y no sólo hace pasar ese ejemplo?
+
+Porque la corrección atacó la raíz del problema en la arquitectura:
+- Se reemplazó la recursión a la derecha por bucles `while` iterativos que encadenan los nodos a la izquierda sin importar cuántas operaciones consecutivas existan.
+- Se agregó una validación explícita al final de `parsear()` que garantiza que el 100% de los tokens consumidos pertenezcan a la expresión válida.
+- Se agregaron comprobaciones de límites en `_avanzar()` para lanzar `ErrorDeSintaxis` controlado en lugar de dejar escapar excepciones nativas de Python (`IndexError`).
 
 ---
 
@@ -135,26 +142,21 @@ Porque no se hace saber que hay un error de sintáxis y al final la expresión p
 
 ### 5.1 ¿Qué duplicación o señal de mal diseño encontraron?
 
-> Al menos dos. Usen el vocabulario de clase: duplicación, rigidez,
-> acoplamiento alto, condicionales repetidos, amplificación del cambio.
+1. **Duplicación de código en `Parser`:** Los métodos `_expresion()` y `_termino()` tenían la misma estructura iterativa repetida para asociar operandos y operadores de un mismo nivel.
+2. **Rigidez / Múltiples condicionales en `Evaluator`:** En `evaluator.py`, la función `evaluar()` usa bloques `if` encadenados para determinar la operación según la cadena del operador, lo que dificulta extender nuevos operadores sin modificar el evaluador directo.
 
 ### 5.2 ¿Qué refactorización realizaron, y por qué conserva el comportamiento?
-
-> "Las pruebas siguen pasando" es parte de la respuesta, pero no toda.
-> ¿Por qué el cambio es equivalente?
+Se aplicó **Extract Method** en `Parser`, creando la función auxiliar `_parsear_operacion_binaria()`. Conserva el comportamiento exactamente igual porque procesa los mismos tokens y genera la misma estructura de nodos `OperacionBinaria` en el AST, garantizando que todas las pruebas existentes sigan pasando (`pytest` en verde).
 
 ### 5.3 ¿Sería pertinente usar Factory Method, Adapter o ninguno?
-
-> Justifiquen. **"Ninguno" puede ser la respuesta correcta.** Si dicen que sí,
-> digan qué problema concreto resuelve y qué costo tiene. Si dicen que no,
-> digan qué tendría que cambiar en el sistema para que empezara a convenir.
-
+**Ninguno es pertinente.**
+- **Factory Method:** La creación de nodos del AST (`Numero`, `OperacionBinaria`) y `Token` es directa, simple y concreta. No hay familias de objetos ni subclases dinámicas que justifiquen este patrón.
+- **Adapter:** No existen librerías de terceros ni interfaces externas incompatibles que requieran una adaptación.
 ### 5.4 ¿Qué parte del sistema sería más difícil de modificar si se agregara un operador nuevo?
-
-> Por ejemplo `%`. ¿Cuántos archivos hay que tocar? ¿Por qué?
-
----
-
+El **Parser** y el **Evaluator**:
+1. En `tokens.py` y `lexer.py`: Definir el nuevo tipo de token y su mapeo.
+2. En `parser.py`: Agregar el token a las tuplas de operadores o definir una nueva regla de precedencia.
+3. En `evaluator.py`: Modificar el bloque condicional en `evaluar()` para dar soporte al nuevo símbolo.
 ## Antes de la declaración: inténtenlo primero ustedes
 
 Usar IA o no es decisión de cada quien, y el curso la permite. Pero **les
