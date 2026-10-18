@@ -82,3 +82,17 @@ def test_signo_negativo_unario():
     """Comprueba que se rechace el signo negativo unario."""
     with pytest.raises(ErrorDeSintaxis):
         interpretar("-3")
+
+
+def test_parentesis_sin_cerrar_reporta_posicion_final():
+    """El error debe señalar dónde se esperaba el paréntesis de cierre."""
+    from mini_interprete.lexer import tokenizar
+    from mini_interprete.parser import Parser
+
+    expresion = "(3 + 4"
+    parser = Parser(tokenizar(expresion))
+
+    with pytest.raises(ErrorDeSintaxis) as error:
+        parser.parsear()
+
+    assert error.value.posicion == len(expresion)
