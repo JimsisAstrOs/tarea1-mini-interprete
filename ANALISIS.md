@@ -1,15 +1,12 @@
-# Análisis — Tarea 1
+# Análisis — Tarea 1: Mini intérprete
 
-**Integrantes:**
+**Integrantes**
 1. Flores Corona Astrid
 2. Flores Leyva Ivone Alejandra
 3. Ortiz Trujillo Jimena
 
-**Fork:**
-**Rama:**
-
-> Contesten en este archivo. Respuestas breves y concretas: se califica que
-> hayan entendido, no la extensión.
+**Fork:** https://github.com/JimsisAstrOs/tarea1-mini-interprete  
+**Rama:** `main`
 
 ---
 
@@ -19,21 +16,21 @@
 
 | Componente | Qué recibe | Qué entrega | De qué es responsable |
 |---|---|---|---|
-| `lexer` | Una cadena con una expresión aritmética | Una lista de tokens con su tipo, valor y posición en el texto | Reconocer números, operadores y paréntesis; ignorar espacios en blanco y convertir el texto en tokens |
-| `parser` | Una lista de tokens que genera el lexer | Un AST que representa la expresión | Analizar la estructura de la expresión, comprobar la sintaxis y respetar la precedencia de los operadores y la agrupación indicada por los paréntesis |
-| `ast` | Los valores de los números y las operaciones que se deben representar | Objetos que representan números (Numero) y operaciones binarias (OperacionBinaria) | Definir las estructuras de datos que permiten representar la expresión mediante un árbol |
-| `evaluator` | Los valores de los números y las operaciones que se deben representar | El resultado numérico de evaluar la expresión | Recorrer el árbol, ejecutar las operaciones aritméticas y generar un ErrorDeEvaluacion cuando se intenta dividir entre cero |
+| `lexer` | Una cadena con una expresión aritmética | Una lista de tokens con tipo, valor y posición | Reconocer números, operadores y paréntesis; ignorar espacios en blanco y reportar caracteres no válidos. |
+| `parser` | Una lista de tokens | Un árbol de sintaxis abstracta (AST) | Validar la sintaxis y construir el árbol respetando la precedencia y los paréntesis. |
+| `ast` | Los valores y operadores que forman la expresión | Objetos `Numero` y `OperacionBinaria` | Representar la expresión mediante un árbol. |
+| `evaluator` | Un AST | Un resultado numérico | Recorrer el árbol, ejecutar las operaciones y reportar errores de evaluación, como la división entre cero. |
 
-### 1.2 ¿Qué recorrido sigue una expresión desde que se recibe como texto hasta que produce un resultado?
+### 1.2 ¿Qué recorrido sigue una expresión desde el texto hasta el resultado?
 
-> Usen `(3 + 4) * 2` como ejemplo y muestren cómo se ve entre etapa y etapa.
+Ejemplo: `(3 + 4) * 2`.
 
-| Etapa | Cómo se ve `(3 + 4) * 2` aquí |
+| Etapa | Representación |
 |---|---|
-| texto | `"(3 + 4) * 2"` |
-| tokens | [PAR_IZQ("("), NUMERO(3), MAS("+"), NUMERO(4), PAR_DER(")"), POR("*"), NUMERO(2)] |
-| AST | OperacionBinaria("*", OperacionBinaria("+", Numero(3), Numero(4)), Numero(2)) |
-| resultado | 14 |
+| Texto | `"(3 + 4) * 2"` |
+| Tokens | `PAR_IZQ("("), NUMERO(3), MAS("+"), NUMERO(4), PAR_DER(")"), POR("*"), NUMERO(2)` |
+| AST | `OperacionBinaria("*", OperacionBinaria("+", Numero(3), Numero(4)), Numero(2))` |
+| Resultado | `14` |
 
 ---
 
@@ -41,158 +38,132 @@
 
 ### 2.1 ¿Qué pruebas venían incluidas?
 
-| Prueba | Componente | Comportamiento que verifica | ¿Cuántos operadores usa? | ¿Normal, frontera o inválida? |
-|---|---|---|---|---|
-| test_tokeniza_un_numero_solo | Lexer | Reconocimiento de un número y comprobación del token completo | 0 | Normal|
-| test_tokeniza_una_suma | Lexer | Reconocimiento y orden de los tokens de una suma; comprueba valores y posiciones | 1 | Normal |
-| test_los_espacios_no_producen_tokens | Lexer | Los espacios no aumentan la cantidad de tokens | 1 | Normal |
-| test_tokeniza_parentesis | Lexer | Reconocimiento y orden de los tipos de token de los paréntesis y el número | 0 | Normal |
-| test_construye_el_arbol_de_una_suma | Parser | Construcción del AST de una suma. | 1 | Normal |
-| test_la_multiplicacion_se_agrupa_antes_que_la_suma | Parser | Comprueba la precedencia de la multiplicación sobre la suma en el AST. | 2 | Normal |
-| test_los_parentesis_cambian_la_agrupacion | Parser | Comprueba que los paréntesis cambien la estructura del AST. | 2 | Normal |
-| test_suma | Evaluador | Evalúa correctamente una suma. | 1 | Normal |
-| test_resta | Evaluador | Evalúa correctamente una resta. | 1 | Normal |
-| test_multiplicacion | Evaluador | Evalúa correctamente una multiplicación. | 1 | Normal |
-| test_division | Evaluador | Evalúa correctamente una división. | 1 | Normal |
-| test_precedencia_sin_parentesis | Evaluador | Respeta la precedencia de la multiplicación sobre la suma. | 2 | Normal |
-| test_precedencia_con_parentesis | Evaluador | Respeta la agrupación indicada por los paréntesis. | 2 | Normal |
+| Prueba | Componente | Comportamiento que verifica | Categoría |
+|---|---|---|---|
+| `test_tokeniza_un_numero_solo` | Lexer | Reconocimiento de un número | Normal |
+| `test_tokeniza_una_suma` | Lexer | Reconocimiento y orden de los tokens de una suma | Normal |
+| `test_los_espacios_no_producen_tokens` | Lexer | Los espacios no generan tokens | Normal |
+| `test_tokeniza_parentesis` | Lexer | Reconocimiento de paréntesis y números | Normal |
+| `test_construye_el_arbol_de_una_suma` | Parser | Construcción del AST de una suma | Normal |
+| `test_la_multiplicacion_se_agrupa_antes_que_la_suma` | Parser | Precedencia de la multiplicación | Normal |
+| `test_los_parentesis_cambian_la_agrupacion` | Parser | Agrupación mediante paréntesis | Normal |
+| `test_suma` | Evaluador | Evaluación de una suma | Normal |
+| `test_resta` | Evaluador | Evaluación de una resta | Normal |
+| `test_multiplicacion` | Evaluador | Evaluación de una multiplicación | Normal |
+| `test_division` | Evaluador | Evaluación de una división | Normal |
+| `test_precedencia_sin_parentesis` | Evaluador | Precedencia de operaciones | Normal |
+| `test_precedencia_con_parentesis` | Evaluador | Agrupación mediante paréntesis | Normal |
 
+### 2.2 ¿Qué comportamientos no estaban probados?
 
-### 2.2 ¿Qué comportamientos **no** estaban probados?
- Los principales casos que no estaban probados son los siguientes:
+Las pruebas originales se concentraban principalmente en expresiones válidas y sencillas. Faltaba comprobar:
 
-1. Operaciones aritméticas y reglas de agrupación
-
-* No se comprueba si las operaciones de la misma precedencia se evalúan de izquierda a derecha, como, 10 - 3 - 2 o 16 / 4 / 2.
-* No se comprueba la precedencia de la división sobre la suma o la resta.
-* No se prueba la división con un resultado decimal, por ejemplo, 10 / 4, que se espera 2.5.
-* No se comprueba qué sucede cuando se intenta dividir entre cero, por ejemplo, 8 / 0, debe producirse un ErrorDeEvaluacion.
-
-2. Números y espacios en blanco
-
-* No se comprueba que los números con ceros a la izquierda conserven su valor numérico, por ejemplo, que 007 se interprete como 7.
-* Aunque existe una prueba sobre los espacios, no se comprueba si se ignoran otros espacios en blanco, como tabulaciones o saltos de línea, en diferentes posiciones de una expresión.
-
-3. Entradas inválidas y errores de sintaxis
-
-* No se comprueba qué sucede cuando se introduce un carácter no reconocido, como @.
-* No se comprueba si el intérprete rechaza expresiones con números consecutivos sin un operador, como 3 4.
-* No se prueban expresiones vacías o formadas únicamente por espacios.
-* No se comprueba el comportamiento ante paréntesis sin cerrar o paréntesis de cierre sin apertura, por ejemplo, (3 + 4 o 3 + 4).
-* No se verifica que se rechacen expresiones incompletas, como 3 +, ni que se rechace el signo negativo unario, como en -3, ya que no está admitido.
-* No se comprueba que los errores de sintaxis indiquen correctamente la posición del texto donde se encuentra el problema.
-
-4. Procesamiento de la expresión completa
-
-* No se comprueba que el intérprete procese todos los tokens de la entrada y rechace aquellos que queden sin utilizar.
-* No se prueban combinaciones más variadas de operadores, números y paréntesis que permitan verificar conjuntamente las reglas de precedencia y agrupación.
-
-En conclusión, las pruebas originales se concentran principalmente en expresiones válidas y sencillas. Faltan pruebas para los casos límite, las entradas inválidas y algunas reglas específicas del proyecto. Estos comportamientos constituyen candidatos para diseñar nuevas pruebas, detectar posibles defectos y comprobar que el intérprete cumple las especificaciones.
+1. **Operaciones y precedencia:** asociatividad de restas y divisiones encadenadas, división con resultado decimal y precedencia de la división sobre la suma.
+2. **Números y espacios:** ceros a la izquierda, tabulaciones y diferentes espacios en blanco.
+3. **Entradas inválidas:** caracteres no reconocidos, números consecutivos sin operador, expresiones incompletas, paréntesis incorrectos y signo negativo unario.
+4. **Errores:** división entre cero y posición reportada por los errores de sintaxis.
+5. **Entrada completa:** rechazo de tokens sobrantes después de una expresión aparentemente válida.
 
 ---
 
-## 3. Las pruebas que agregaron
+## 3. Las pruebas que agregamos
 
-### 3.1 ¿Cuáles son casos normales, cuáles frontera y cuáles inválidos?
+### 3.1 ¿Cuáles son casos normales, frontera e inválidos?
 
-| Prueba (archivo::nombre) | Entrada |	Esperado |	Categoría |	¿Por qué esa categoría? |
-|---|---|---|---|---|
-| test_casos_adicionales.py::test_division_con_resultado_decimal |  10 / 4 |  Resultado 2.5. | Normal | Comprueba el funcionamiento habitual de la división cuando el resultado es decimal.|
-|test_casos_adicionales.py::test_precedencia_de_division_sobre_suma | 8 + 12 / 4 |  Resultado 11.0. | Normal | Comprueba que la división se realice antes que la suma, de acuerdo con las reglas de precedencia.|
-| test_casos_adicionales.py::test_asociatividad_izquierda_de_la_resta | 10 - 3 - 2 |  Resultado 5. |  Normal | Comprueba la agrupación de operaciones consecutivas de resta. Aunque es una expresión válida, también permite detectar un posible defecto en el parser. |
-| test_casos_adicionales.py::test_numero_con_ceros_a_la_izquierda | 007 | Resultado 7. |  Frontera | Comprueba un formato especial de número: los ceros iniciales no deben modificar su valor numérico. |
-| test_casos_adicionales.py::test_expresion_con_tabulaciones_y_espacios | 3   +   4 | Resultado 7. |  Frontera  | Comprueba el tratamiento de distintos espacios en blanco y su ubicación dentro de una expresión. |
-|test_casos_adicionales.py::test_division_entre_cero  | 8 / 0 | Se lanza ErrorDeEvaluacion. | Frontera  | Comprueba el caso especial en el que el divisor es cero, condición que debe generar un error de evaluación. | 
-| test_casos_adicionales.py::test_expresion_con_cero  | 0 + 5 | Resultado 5.  | Frontera  | Comprueba que el cero se acepte como operando y se procese correctamente. |
-| test_casos_adicionales.py::test_caracter_no_reconocido  | 3 @ 4 | Se lanza ErrorDeSintaxis. | Inválida  | Contiene un carácter que no pertenece al lenguaje admitido; la expresión debe rechazarse. |
-| test_casos_adicionales.py::test_numeros_consecutivos_sin_operador | 3 4 | Se lanza ErrorDeSintaxis. | Inválida  | Contiene dos números consecutivos sin un operador que los conecte. |
-| test_casos_adicionales.py::test_expresion_incompleta  | 3 + | Se lanza ErrorDeSintaxis. | Inválida  | La expresión termina sin incluir el operando derecho requerido por el operador +. |
-| test_casos_adicionales.py::test_parentesis_sin_cerrar | (3 + 4  | Se lanza ErrorDeSintaxis. | Inválida  | Falta el paréntesis de cierre necesario para completar la expresión. |
-| test_casos_adicionales.py::test_signo_negativo_unario | -3  | Se lanza ErrorDeSintaxis. | Inválida  | El signo negativo unario no está admitido por las especificaciones del intérprete. |
+| Prueba | Entrada | Resultado esperado | Categoría |
+|---|---|---|---|
+| `test_division_con_resultado_decimal` | `10 / 4` | `2.5` | Normal |
+| `test_precedencia_de_division_sobre_suma` | `8 + 12 / 4` | `11.0` | Normal |
+| `test_asociatividad_izquierda_de_la_resta` | `10 - 3 - 2` | `5` | Normal |
+| `test_numero_con_ceros_a_la_izquierda` | `007` | `7` | Frontera |
+| `test_expresion_con_tabulaciones_y_espacios` | `\t3 \t + \t 4 ` | `7` | Frontera |
+| `test_division_entre_cero` | `8 / 0` | `ErrorDeEvaluacion` | Frontera |
+| `test_expresion_con_cero` | `0 + 5` | `5` | Frontera |
+| `test_caracter_no_reconocido` | `3 @ 4` | `ErrorDeSintaxis` | Inválida |
+| `test_numeros_consecutivos_sin_operador` | `3 4` | `ErrorDeSintaxis` | Inválida |
+| `test_expresion_incompleta` | `3 +` | `ErrorDeSintaxis` | Inválida |
+| `test_parentesis_sin_cerrar` | `(3 + 4` | `ErrorDeSintaxis` | Inválida |
+| `test_signo_negativo_unario` | `-3` | `ErrorDeSintaxis` | Inválida |
+| `test_parentesis_sin_cerrar_reporta_posicion_final` | `(3 + 4` | `ErrorDeSintaxis` con posición igual a la longitud de la entrada | Inválida |
+
+La última prueba comprueba, además de que se rechace la expresión, que la posición reportada corresponda al lugar donde se esperaba el paréntesis de cierre.
+
 ---
 
 ## 4. Los defectos
 
-### 4.1 ¿Qué defecto reveló primero una prueba nueva?
+### 4.1 ¿Qué defectos identificamos?
 
-1. El `lexer` ignoraba caracteres inválidos (como `@`) y el `parser` no comprobaba si quedaban tokens sin consumir al final (`3 4`).
-2. El `parser` asociaba la resta y la división encadenadas hacia la derecha (`10 - 3 - 2`).
-### 4.2 ¿Por qué el comportamiento observado era incorrecto?
-1. `"3 @ 4"` devolvía `3` porque el lexer simplemente ignoraba el caracter no reconocido en su cláusula `else` y el parser devolvía el primer número sin verificar el resto de la entrada.
-2. `"10 - 3 - 2"` devolvía `9` en lugar de `5` porque `_expresion()` realizaba recursión hacia la derecha, agrupando la expresión como `10 - (3 - 2)`.
-### 4.3 ¿Qué cambio realizaron?
+Durante el análisis de las pruebas adicionales se consideraron los siguientes problemas:
 
-| Defecto | Entrada que lo revela | Daba | Debería dar |
-|---|---|---|---|
-| Caracter no reconocido ignorado | `3 @ 4` | 3 | ErrorDeSintaxis |
-| Tokens sobrantes no validados | `3 4` | 3 | ErrorDeSintaxis |
-| Expresión incompleta causa crash | `3 +` | IndexError | ErrorDeSintaxis |
-| Asociatividad a la derecha | `10 - 3 - 2` | 9 | 5 |
+1. El lexer podía ignorar caracteres no reconocidos, como `@`, en la versión inicial.
+2. El parser podía aceptar una expresión sin consumir todos los tokens, como `3 4`.
+3. Una expresión incompleta, como `3 +`, podía provocar una excepción nativa de Python en lugar de un error de sintaxis controlado.
+4. Las operaciones consecutivas del mismo nivel debían asociarse a la izquierda. Por ejemplo, `10 - 3 - 2` debe interpretarse como `(10 - 3) - 2`.
+5. Al faltar un paréntesis de cierre, debía reportarse la posición donde se esperaba el cierre.
 
-### 4.4 ¿Cómo saben que la corrección es general y no sólo hace pasar ese ejemplo?
+### 4.2 ¿Por qué eran incorrectos esos comportamientos?
 
-Porque la corrección atacó la raíz del problema en la arquitectura:
-- Se reemplazó la recursión a la derecha por bucles `while` iterativos que encadenan los nodos a la izquierda sin importar cuántas operaciones consecutivas existan.
-- Se agregó una validación explícita al final de `parsear()` que garantiza que el 100% de los tokens consumidos pertenezcan a la expresión válida.
-- Se agregaron comprobaciones de límites en `_avanzar()` para lanzar `ErrorDeSintaxis` controlado en lugar de dejar escapar excepciones nativas de Python (`IndexError`).
+- `3 @ 4` debe rechazarse porque `@` no pertenece al lenguaje admitido.
+- `3 4` debe rechazarse porque dos números consecutivos no forman una expresión válida sin un operador.
+- `3 +` debe generar `ErrorDeSintaxis`, no una excepción interna de Python.
+- `10 - 3 - 2` debe producir `5`, de acuerdo con la asociatividad izquierda.
+- `(3 + 4` debe generar un error que señale dónde se esperaba `)`.
+
+### 4.3 ¿Qué cambios realizamos?
+
+| Problema | Corrección |
+|---|---|
+| Caracteres no reconocidos | El lexer debe generar un error de sintaxis ante caracteres no admitidos. |
+| Tokens sobrantes | `parsear()` verifica si quedan tokens después de analizar la expresión. |
+| Expresiones incompletas | Se agregaron comprobaciones para producir errores de sintaxis controlados. |
+| Asociatividad incorrecta | Se utiliza un recorrido iterativo que construye las operaciones de izquierda a derecha. |
+| Paréntesis sin cerrar | Se ajustó el reporte de posición para señalar el final de la entrada cuando falta el cierre. |
+
+### 4.4 ¿Cómo sabemos que las correcciones son generales y no solo sirven para un ejemplo?
+
+Las pruebas cubren diferentes expresiones válidas, casos límite y entradas inválidas. Además, el parser utiliza un método auxiliar para procesar operaciones binarias de un mismo nivel, en lugar de repetir esa lógica en cada nivel de precedencia.
+
+La ejecución local reportada de `python -m pytest -v` terminó con **26 pruebas aprobadas**. Este resultado confirma que esas pruebas pasan en el entorno utilizado, aunque por sí solo no demuestra que se hayan cubierto todos los casos posibles.
 
 ---
 
 ## 5. Diseño
 
-### 5.1 ¿Qué duplicación o señal de mal diseño encontraron?
+### 5.1 ¿Qué duplicación o señal de mal diseño encontramos?
 
-1. **Duplicación de código en `Parser`:** Los métodos `_expresion()` y `_termino()` tenían la misma estructura iterativa repetida para asociar operandos y operadores de un mismo nivel.
-2. **Rigidez / Múltiples condicionales en `Evaluator`:** En `evaluator.py`, la función `evaluar()` usa bloques `if` encadenados para determinar la operación según la cadena del operador, lo que dificulta extender nuevos operadores sin modificar el evaluador directo.
+1. **Duplicación en el parser:** los métodos que analizan expresiones y términos necesitaban recorrer operadores y construir nodos binarios mediante una lógica similar.
+2. **Condicionales en el evaluador:** el método `evaluar()` determina la operación mediante condiciones para cada operador. Esto funciona, pero obliga a modificar esa función al agregar nuevas operaciones.
 
-### 5.2 ¿Qué refactorización realizaron, y por qué conserva el comportamiento?
-Se aplicó **Extract Method** en `Parser`, creando la función auxiliar `_parsear_operacion_binaria()`. Conserva el comportamiento exactamente igual porque procesa los mismos tokens y genera la misma estructura de nodos `OperacionBinaria` en el AST, garantizando que todas las pruebas existentes sigan pasando (`pytest` en verde).
+### 5.2 ¿Qué refactorización realizamos y por qué conserva el comportamiento?
+
+Aplicamos **Extract Method** en `Parser`, mediante el método auxiliar `_parsear_operacion_binaria()`.
+
+Este método recibe la función encargada de analizar el siguiente nivel de precedencia y los operadores permitidos. Así, se reutiliza la lógica para construir operaciones binarias y se mantiene la asociatividad a la izquierda.
+
+La refactorización conserva el comportamiento esperado porque mantiene las reglas de precedencia y la estructura de los nodos del AST. Las pruebas sirven para comprobar que los casos cubiertos siguen funcionando.
 
 ### 5.3 ¿Sería pertinente usar Factory Method, Adapter o ninguno?
-**Ninguno es pertinente.**
-- **Factory Method:** La creación de nodos del AST (`Numero`, `OperacionBinaria`) y `Token` es directa, simple y concreta. No hay familias de objetos ni subclases dinámicas que justifiquen este patrón.
-- **Adapter:** No existen librerías de terceros ni interfaces externas incompatibles que requieran una adaptación.
-### 5.4 ¿Qué parte del sistema sería más difícil de modificar si se agregara un operador nuevo?
-El **Parser** y el **Evaluator**:
-1. En `tokens.py` y `lexer.py`: Definir el nuevo tipo de token y su mapeo.
-2. En `parser.py`: Agregar el token a las tuplas de operadores o definir una nueva regla de precedencia.
-3. En `evaluator.py`: Modificar el bloque condicional en `evaluar()` para dar soporte al nuevo símbolo.
-## Antes de la declaración: inténtenlo primero ustedes
 
-Usar IA o no es decisión de cada quien, y el curso la permite. Pero **les
-pedimos, por favor, que primero hagan el análisis por su cuenta.**
+Consideramos que **ninguno de los dos patrones es necesario para el diseño actual**.
 
-No es una prueba de honestidad. Es que el orden cambia lo que aprenden:
+- **Factory Method:** la creación de `Numero`, `OperacionBinaria` y los tokens es directa. No se observa una necesidad concreta de delegar la creación de familias de objetos mediante subclases.
+- **Adapter:** no identificamos interfaces externas incompatibles que requieran una adaptación.
 
-1. **Primero ustedes.** Lean el código, corran las pruebas, escriban sus
-   respuestas. Aunque queden incompletas, aunque no encuentren todo.
+Introducir alguno de estos patrones sin una necesidad concreta agregaría complejidad sin resolver un problema actual del intérprete.
 
-2. **Después, si quieren, la IA** — pero como contraste, no como sustituto.
-   Y entonces contesten dos preguntas, en `DECLARACION_IA.md`:
+### 5.4 ¿Qué parte sería más difícil de modificar si agregáramos un operador?
 
-   - **¿Qué encontró que ustedes no habían notado?**
-     Eso es aprendizaje, y se declara sin ninguna pena.
+Principalmente, el lexer, el parser y el evaluador:
 
-   - **¿Qué *no* encontró, que en este curso sí consideramos un problema?**
-     Ésta es la interesante. Una herramienta suele decir que el código
-     "funciona bien" y no señalar, por ejemplo, la **duplicación** — porque
-     duplicar no rompe nada, el programa corre igual. Pero ustedes ya saben
-     por qué eso sí es un mal diseño, y saben nombrarlo. La herramienta no
-     tomó esa clase.
+1. En `tokens.py` y `lexer.py`, habría que definir y reconocer el nuevo operador.
+2. En `parser.py`, habría que incorporarlo a la regla de precedencia correspondiente o crear un nuevo nivel.
+3. En `evaluator.py`, habría que implementar su operación y asociarla con el símbolo correspondiente.
 
-> Si invierten el orden se pierden justamente lo segundo: **no se puede notar
-> lo que a una herramienta le faltó si uno nunca se formó una opinión propia
-> antes de preguntarle.** Y que un programa funcione no implica que esté bien
-> diseñado — eso lo dijimos en clase mucho antes de esta tarea.
+La dificultad depende del operador: uno con una precedencia nueva requeriría más cambios que uno que se incorpore a un nivel existente.
 
 ---
 
-## Declaración de uso de Inteligencia Artificial
+## Conclusión
 
-Va en `DECLARACION_IA.md`, no aquí. Es obligatoria, pero **no da ni quita
-puntos**: es un reporte adicional que se revisa aparte y se les devuelve con
-comentarios.
-
-**No se evalúa cuánta IA usaron.** Se evalúa si pueden dar cuenta de lo que
-entregaron. *"No usamos"* es una declaración válida y completa; *"lo
-descartamos porque..."* es de las mejores respuestas posibles.
+Las pruebas adicionales permitieron examinar comportamientos que no estaban cubiertos por las pruebas originales, especialmente los errores de sintaxis, la asociatividad y los casos límite. La refactorización del parser reduce la duplicación y facilita mantener las reglas de precedencia. La elección de no introducir Factory Method ni Adapter se basa en que el diseño actual no presenta una necesidad concreta para esos patrones.
