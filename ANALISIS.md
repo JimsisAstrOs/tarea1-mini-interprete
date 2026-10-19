@@ -1,9 +1,9 @@
 # Análisis — Tarea 1: Mini intérprete
 
 **Integrantes**
-1. Flores Corona Astrid
-2. Flores Leyva Ivone Alejandra
-3. Ortiz Trujillo Jimena
+1. Flores Corona Astrid.
+2. Flores Leyva Ivone Alejandra.
+3. Ortiz Trujillo Jimena.
 
 **Fork:** https://github.com/JimsisAstrOs/tarea1-mini-interprete  
 **Rama:** `main`
