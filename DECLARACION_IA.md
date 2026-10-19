@@ -25,8 +25,9 @@
 ## 1. Herramienta(s) utilizada(s)
 
 | Herramienta | Versión o modelo, si lo saben |
-| ChatGPT | GPT-6,gratuito |
-| | |
+|---|---|
+| ChatGPT | GPT-6, gratuito |
+
 
 > Cuenta también el autocompletado del editor (Copilot y similares). Si sólo
 > fue eso, basta con decirlo en un renglón y seguir al punto 4.
@@ -123,13 +124,8 @@ En una próxima actividad, continuaremos trabajando de manera autónoma, analiza
 
 | Nombre | Número de cuenta |
 |---|---|
-| Flores Corona Astrid | |
-|---|---|
-
-|Flores Leyva Ivone Alejandra | 323129668 |
-|---|---|
-
+| Flores Corona Astrid | 323190642 |
+| Flores Leyva Ivone Alejandra | 323129668 |
 | Jimena Ortiz Trujillo | 323041991 |
-|---|---|
 
 
